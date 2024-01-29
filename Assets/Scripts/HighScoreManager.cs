@@ -1,18 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.IO;
+using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.SceneManagement;
 
 public class HighScoreManager : MonoBehaviour
 {
     public static HighScoreManager Instance;    
-    public Text highScoreText;
-    private string playerName;
-    private int playerPoints;
-    private String[] hsNames;
-    private int[] hsScores;
-
+    public GameObject[] hsEntries;
+    private List<DataPersist.Entry> leaderboard = new();
+    
     private void Awake()
     {
         if (Instance != null)
@@ -23,15 +24,24 @@ public class HighScoreManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+
+        UpdateLeaderboard();
     }
 
-    public void SaveScores()
-    {
-
+    public void UpdateLeaderboard(){
+        leaderboard = DataPersist.Instance.LoadLeaderboard();
+        int i = 0;
+        foreach(GameObject entry in hsEntries){
+            HighScoreEntry entryScript = entry.GetComponent<HighScoreEntry>();
+            entryScript.UpdateEntry(leaderboard[i].entryName, leaderboard[i].entryPoints);
+            i++;
+        }
     }
+
+    public void BackToMenu(){
+        SceneManager.LoadScene(0);
+        Destroy(Instance);
+        Destroy(DataPersist.Instance);
+    }
+
 }

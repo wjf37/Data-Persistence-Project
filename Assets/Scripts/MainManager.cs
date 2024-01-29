@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,15 +10,14 @@ public class MainManager : MonoBehaviour
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
-
+    public TextMeshProUGUI bestScore;
     public Text ScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
     private bool m_GameOver = false;
-
-    public string M_Points { get; }
+    private DataPersist.Entry bestScoreEntry = new();
 
     // Start is called before the first frame update
     void Start()
@@ -36,6 +36,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        bestScoreEntry = DataPersist.Instance.DisplayBestScore();
+        bestScore.text = "Best Score : " + bestScoreEntry.entryName + " : " + bestScoreEntry.entryPoints.ToString();
     }
 
     private void Update()
@@ -76,6 +78,7 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
+        DataPersist.Instance.AddEntry(DataPersist.Instance.nameInput , m_Points);
         GameOverText.SetActive(true);
     }
 }
